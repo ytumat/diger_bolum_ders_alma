@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dilekçe Oluştur</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: Calibri, "Times New Roman", serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .letter-section {
+      display: none;
+      margin-top: 40px;
+      padding: 40px;
+      background: white;
+      border: none;
+    }
+
+    .center-text {
+      text-align: center;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .left-text {
+      text-align: justify;
+      margin-top: 20px;
+      white-space: pre-line;
+    }
+
+    .download-button {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .ders-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #fafafa;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      .letter-section, .letter-section * {
+        visibility: visible;
+      }
+
+      .letter-section {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 210mm;
+        height: 297mm;
+        background: white !important;
+        padding: 40px;
+        margin: 0;
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      .download-button {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Diğer Bölümlerden Ders Alma Dilekçesi Oluşturma</h2>
+    <form id="dilekceForm">
+      <label>Adınız:</label>
+      <input type="text" id="ad" required />
+      <label>Soyadınız:</label>
+      <input type="text" id="soyad" required />
+      <label>Öğrenci Numarası:</label>
+      <input type="text" id="numara" required />
+      <label>E-posta:</label>
+      <input type="email" id="email" required />
+      <label>Cep Telefonu:</label>
+      <input type="text" id="telefon" required />
+
+      <label>Eklenecek Ders(ler) <strong>Dahil</strong> GÜZ Yarıyılında <strong>Alınan Toplam Kredi</strong>:</label>
+      <input type="number" id="kredi" required />
+
+      <label>Mazeretiniz:</label>
+      <textarea id="mazeret" rows="3" required></textarea>
+
+      <label>Bölümünüzü Seçiniz:</label>
+      <select id="bolumSelect" required>
+        <option value="MATEMATİK BÖLÜM BAŞKANLIĞI'NA">MATEMATİK</option>
+        <option value="FİZİK BÖLÜM BAŞKANLIĞI'NA">FİZİK</option>
+        <option value="KİMYA BÖLÜM BAŞKANLIĞI'NA">KİMYA</option>
+        <option value="İSTATİSTİK BÖLÜM BAŞKANLIĞI'NA">İSTATİSTİK</option>
+        <option value="MOLEKÜLER BİYOLOJİ VE GENETİK BÖLÜM BAŞKANLIĞI'NA">MOLEKÜLER BİYOLOJİ VE GENETİK</option>
+        <option value="TÜRK DİLİ VE EDEBİYATI BÖLÜM BAŞKANLIĞI'NA">TÜRK DİLİ VE EDEBİYATI</option>
+        <option value="BATI DİLLERİ VE EDEBİYATLARI BÖLÜM BAŞKANLIĞI'NA">BATI DİLLERİ VE EDEBİYATLARI</option>
+      </select>
+
+      <h3>Dersler</h3>
+      <div id="dersListesi"></div>
+      <button type="button" onclick="dersEkle()">➕ Ders Ekle</button>
+
+      <br><br>
+      <button type="submit">Dilekçeyi Oluştur</button>
+    </form>
+
+    <div class="letter-section" id="dilekceOutput">
+      <p id="bolumYazisi" class="center-text" style="font-weight: bold; margin-bottom: 1cm;"></p>
+      <div class="left-text" id="ogrenciBilgileri"></div>
+
+      <p style="margin-top: 30px;">
+        2025-2026 Eğitim-Öğretim yılı GÜZ Yarıyılında aşağıda belirtmiş olduğum mazeretten dolayı üniversitemiz diğer bölümlerinden almak istediğim aşağıdaki ders(ler)in öğrenci otomasyon sistemine işlenmesi için gereğini arz ederim.
+      </p>
+
+      <p style="margin-top: 10px;"><strong>Mazeret:</strong> <span id="mazeretMetni"></span></p>
+
+      <table id="dersTablosu">
+        <thead>
+          <tr>
+            <th colspan="5">Alınacak Dersin</th>
+            <th colspan="3">Bölümümüzde Eşdeğer Olduğu Dersin</th>
+          </tr>
+          <tr>
+            <th>Bölümü</th>
+            <th>Kodu-Adı</th>
+            <th>Grubu</th>
+            <th>Dili</th>
+            <th>Kredisi (T+U)</th>
+            <th>Kodu-Adı</th>
+            <th>Dili</th>
+            <th>Kredisi (T+U)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <p style="margin-top: 20px;"><strong>Eklenecek Ders(ler) Dahil GÜZ Yarıyılında Alınan Toplam Kredi:</strong> <span id="krediBilgisi"></span></p>
+      <br><br>
+      <p style="text-align: right;" id="tarihYeri"></p>
+      <p style="text-align: right;" id="imzaAlani">İmza: _________</p>
+    </div>
+
+    <div class="download-button" id="downloadBtnDiv">
+      <button id="downloadBtn">📥 PDF Olarak İndir</button>
+    </div>
+  </div>
+
+  <script>
+    function formatDersAdi(dersAdi) {
+      if (!dersAdi) return "";
+      const firstThree = dersAdi.slice(0, 3).toUpperCase();
+      const rest = dersAdi.slice(3);
+
+      const turkishToLower = (str) =>
+        str
+          .replace(/İ/g, "i")
+          .replace(/I/g, "ı")
+          .replace(/Ş/g, "ş")
+          .replace(/Ğ/g, "ğ")
+          .replace(/Ü/g, "ü")
+          .replace(/Ö/g, "ö")
+          .replace(/Ç/g, "ç")
+          .toLowerCase();
+
+      const capitalizeWords = (str) =>
+        str
+          .split(" ")
+          .map((kelime) =>
+            kelime.length > 0
+              ? kelime[0].toUpperCase() + turkishToLower(kelime.slice(1))
+              : ""
+          )
+          .join(" ");
+
+      const formattedRest = capitalizeWords(rest.trim());
+      return firstThree + formattedRest;
+    }
+
+    function dersEkle() {
+      const container = document.getElementById("dersListesi");
+      const div = document.createElement("div");
+      div.className = "ders-item";
+      div.innerHTML = `
+        <label>Alınacak Dersin Bölümü:</label>
+        <select name="dersBolumu" required>
+          <option>Matematik Mühendisliği</option>
+          <option>Bilgisayar Mühendisliği</option>
+          <option>Endüstri Mühendisliği</option>
+          <option>İşletme</option>
+          <option>İstatistik</option>
+        </select>
+
+        <label>Alınacak Dersin Kodu-Adı:</label>
+        <input type="text" name="yeniDers" required />
+
+        <label>Alınacak Dersin Grubu:</label>
+        <input type="text" name="grup" required />
+
+        <label>Alınacak Dersin Dili:</label>
+        <select name="dili" required>
+          <option value="Tr">Türkçe</option>
+          <option value="İng">İngilizce</option>
+        </select>
+
+        <label>Alınacak Dersin Kredisi (T+U):</label>
+        <input type="text" name="krediTu" required pattern="^\\d+\\+\\d+$" title="Lütfen T+U formatında (örneğin 3+0) giriniz." />
+
+        <label>Eşdeğer Dersin Kodu-Adı:</label>
+        <input type="text" name="esKodAd" required />
+
+        <label>Eşdeğer Dili:</label>
+        <input type="text" name="esDili" readonly />
+
+        <label>Eşdeğer Kredisi (T+U):</label>
+        <input type="text" name="esKredi" required pattern="^\\d+\\+\\d+$" title="Lütfen T+U formatında (örneğin 3+0) giriniz." />
+      `;
+      container.appendChild(div);
+
+      const diliSelect = div.querySelector("select[name='dili']");
+      const esDiliInput = div.querySelector("input[name='esDili']");
+      esDiliInput.value = diliSelect.value === "Tr" ? "Tr" : "İng";
+      diliSelect.addEventListener("change", function () {
+        esDiliInput.value = this.value === "Tr" ? "Tr" : "İng";
+      });
+    }
+
+    window.onload = () => dersEkle();
+
+    document.getElementById("dilekceForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const ad = document.getElementById("ad").value;
+      const soyad = document.getElementById("soyad").value;
+      const numara = document.getElementById("numara").value;
+      const email = document.getElementById("email").value;
+      const telefon = document.getElementById("telefon").value;
+      const kredi = document.getElementById("kredi").value;
+      const bolum = document.getElementById("bolumSelect").value;
+      const mazeret = document.getElementById("mazeret").value;
+
+      const adSoyad = `${ad}_${soyad}`.replace(/\s+/g, "_");
+      window.adSoyad = adSoyad;
+
+      const today = new Date();
+      const formattedDate = today.toLocaleDateString("tr-TR");
+
+      const bilgiler = `<strong>Ad Soyad:</strong> ${ad} ${soyad}<br>
+<strong>Öğrenci No:</strong> ${numara}<br>
+<strong>E-posta:</strong> ${email}<br>
+<strong>Telefon:</strong> ${telefon}<br><div style="margin-bottom:2cm;"></div>`;
+
+      document.getElementById("ogrenciBilgileri").innerHTML = bilgiler;
+      document.getElementById("bolumYazisi").innerText = bolum;
+      document.getElementById("krediBilgisi").innerText = kredi;
+      document.getElementById("tarihYeri").innerText = `Tarih: ${formattedDate}`;
+      document.getElementById("mazeretMetni").innerText = mazeret;
+
+      const tbody = document.querySelector("#dersTablosu tbody");
+      tbody.innerHTML = "";
+
+      const dersler = document.querySelectorAll(".ders-item");
+      dersler.forEach((ders) => {
+        const bolum = ders.querySelector("select[name='dersBolumu']").value;
+        let yeniDers = ders.querySelector("input[name='yeniDers']").value;
+        const grup = ders.querySelector("input[name='grup']").value;
+        const dili = ders.querySelector("select[name='dili']").value;
+        const krediTu = ders.querySelector("input[name='krediTu']").value;
+        const esKodAd = ders.querySelector("input[name='esKodAd']").value;
+        const esDili = ders.querySelector("input[name='esDili']").value;
+        const esKredi = ders.querySelector("input[name='esKredi']").value;
+
+        yeniDers = formatDersAdi(yeniDers);
+        const esKodAdFormatted = formatDersAdi(esKodAd);
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${bolum}</td>
+          <td>${yeniDers}</td>
+          <td>${grup}</td>
+          <td>${dili}</td>
+          <td>${krediTu}</td>
+          <td>${esKodAdFormatted}</td>
+          <td>${esDili}</td>
+          <td>${esKredi}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById("dilekceOutput").style.display = "block";
+      document.getElementById("downloadBtnDiv").style.display = "block";
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      const element = document.getElementById("dilekceOutput");
+      const opt = {
+        margin: 0.5,
+        filename: `${window.adSoyad}_dilekce.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, scrollX: 0, scrollY: 0 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+      };
+      html2pdf().set(opt).from(element).save();
+    });
+  </script>
+</body>
+</html>
