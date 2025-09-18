@@ -138,6 +138,10 @@
         <option value="TÜRK DİLİ VE EDEBİYATI BÖLÜM BAŞKANLIĞI'NA">TÜRK DİLİ VE EDEBİYATI</option>
         <option value="BATI DİLLERİ VE EDEBİYATLARI BÖLÜM BAŞKANLIĞI'NA">BATI DİLLERİ VE EDEBİYATLARI</option>
       </select>
+      <div id="digerBolumDiv" style="display:none;">
+        <label>Diğer Bölüm Adı:</label>
+        <input type="text" id="digerBolumInput" placeholder="Kendi bölümünüzü yazınız" />
+      </div>
 
       <h3>Dersler</h3>
       <div id="dersListesi"></div>
@@ -189,34 +193,27 @@
   </div>
 
   <script>
+    document.getElementById("bolumSelect").addEventListener("change", function () {
+      const digerDiv = document.getElementById("digerBolumDiv");
+      digerDiv.style.display = this.value === "diger" ? "block" : "none";
+    });
+
     function formatDersAdi(dersAdi) {
       if (!dersAdi) return "";
       const firstThree = dersAdi.slice(0, 3).toUpperCase();
       const rest = dersAdi.slice(3);
-
-      const turkishToLower = (str) =>
-        str
-          .replace(/İ/g, "i")
-          .replace(/I/g, "ı")
-          .replace(/Ş/g, "ş")
-          .replace(/Ğ/g, "ğ")
-          .replace(/Ü/g, "ü")
-          .replace(/Ö/g, "ö")
-          .replace(/Ç/g, "ç")
-          .toLowerCase();
-
+      const turkishToLower = (str) => str
+        .replace(/İ/g, "i").replace(/I/g, "ı")
+        .replace(/Ş/g, "ş").replace(/Ğ/g, "ğ")
+        .replace(/Ü/g, "ü").replace(/Ö/g, "ö")
+        .replace(/Ç/g, "ç").toLowerCase();
       const capitalizeWords = (str) =>
-        str
-          .split(" ")
-          .map((kelime) =>
-            kelime.length > 0
-              ? kelime[0].toUpperCase() + turkishToLower(kelime.slice(1))
-              : ""
-          )
-          .join(" ");
-
-      const formattedRest = capitalizeWords(rest.trim());
-      return firstThree + formattedRest;
+        str.split(" ").map(kelime =>
+          kelime.length > 0
+            ? kelime[0].toUpperCase() + turkishToLower(kelime.slice(1))
+            : ""
+        ).join(" ");
+      return firstThree + capitalizeWords(rest.trim());
     }
 
     function dersEkle() {
@@ -225,13 +222,15 @@
       div.className = "ders-item";
       div.innerHTML = `
         <label>Alınacak Dersin Bölümü:</label>
-        <select name="dersBolumu" required>
+        <select name="dersBolumuSelect" required>
           <option>Matematik Mühendisliği</option>
           <option>Bilgisayar Mühendisliği</option>
           <option>Endüstri Mühendisliği</option>
           <option>İşletme</option>
           <option>İstatistik</option>
+          <option value="diger">Diğer</option>
         </select>
+        <input type="text" name="digerDersBolumu" placeholder="Bölüm adı giriniz" style="display:none;" />
 
         <label>Alınacak Dersin Kodu-Adı:</label>
         <input type="text" name="yeniDers" required />
@@ -246,24 +245,30 @@
         </select>
 
         <label>Alınacak Dersin Kredisi (T+U):</label>
-        <input type="text" name="krediTu" required pattern="^\\d+\\+\\d+$" title="Lütfen T+U formatında (örneğin 3+0) giriniz." />
+        <input type="text" name="krediTu" required pattern="^\\d+\\+\\d+$" title="T+U formatında giriniz." />
 
-        <label>Eşdeğer Dersin Kodu-Adı:</label>
+        <label>Bölümümüzde Eşdeğer Olduğu Dersin Kodu-Adı:</label>
         <input type="text" name="esKodAd" required />
 
         <label>Eşdeğer Dili:</label>
         <input type="text" name="esDili" readonly />
 
         <label>Eşdeğer Kredisi (T+U):</label>
-        <input type="text" name="esKredi" required pattern="^\\d+\\+\\d+$" title="Lütfen T+U formatında (örneğin 3+0) giriniz." />
+        <input type="text" name="esKredi" required pattern="^\\d+\\+\\d+$" title="T+U formatında giriniz." />
       `;
       container.appendChild(div);
 
+      const bolumSelect = div.querySelector("select[name='dersBolumuSelect']");
+      const digerInput = div.querySelector("input[name='digerDersBolumu']");
+      bolumSelect.addEventListener("change", function () {
+        digerInput.style.display = this.value === "diger" ? "block" : "none";
+      });
+
       const diliSelect = div.querySelector("select[name='dili']");
       const esDiliInput = div.querySelector("input[name='esDili']");
-      esDiliInput.value = diliSelect.value === "Tr" ? "Tr" : "İng";
+      esDiliInput.value = diliSelect.value;
       diliSelect.addEventListener("change", function () {
-        esDiliInput.value = this.value === "Tr" ? "Tr" : "İng";
+        esDiliInput.value = this.value;
       });
     }
 
@@ -272,14 +277,20 @@
     document.getElementById("dilekceForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const ad = document.getElementById("ad").value;
-      const soyad = document.getElementById("soyad").value;
+      const ad = document.getElementById("ad").value.trim();
+      const soyad = document.getElementById("soyad").value.trim();
       const numara = document.getElementById("numara").value;
       const email = document.getElementById("email").value;
       const telefon = document.getElementById("telefon").value;
       const kredi = document.getElementById("kredi").value;
-      const bolum = document.getElementById("bolumSelect").value;
       const mazeret = document.getElementById("mazeret").value;
+
+      const bolumSelect = document.getElementById("bolumSelect");
+      let bolum = bolumSelect.value;
+      if (bolum === "diger") {
+        const digerBolum = document.getElementById("digerBolumInput").value.trim();
+        bolum = digerBolum.toUpperCase() + " BÖLÜM BAŞKANLIĞI'NA";
+      }
 
       const adSoyad = `${ad}_${soyad}`.replace(/\s+/g, "_");
       window.adSoyad = adSoyad;
@@ -287,12 +298,12 @@
       const today = new Date();
       const formattedDate = today.toLocaleDateString("tr-TR");
 
-      const bilgiler = `<strong>Ad Soyad:</strong> ${ad} ${soyad}<br>
-<strong>Öğrenci No:</strong> ${numara}<br>
-<strong>E-posta:</strong> ${email}<br>
-<strong>Telefon:</strong> ${telefon}<br><div style="margin-bottom:2cm;"></div>`;
-
-      document.getElementById("ogrenciBilgileri").innerHTML = bilgiler;
+      document.getElementById("ogrenciBilgileri").innerHTML = `
+        <strong>Ad Soyad:</strong> ${ad} ${soyad}<br>
+        <strong>Öğrenci No:</strong> ${numara}<br>
+        <strong>E-posta:</strong> ${email}<br>
+        <strong>Telefon:</strong> ${telefon}<br><div style="margin-bottom:2cm;"></div>
+      `;
       document.getElementById("bolumYazisi").innerText = bolum;
       document.getElementById("krediBilgisi").innerText = kredi;
       document.getElementById("tarihYeri").innerText = `Tarih: ${formattedDate}`;
@@ -301,19 +312,19 @@
       const tbody = document.querySelector("#dersTablosu tbody");
       tbody.innerHTML = "";
 
-      const dersler = document.querySelectorAll(".ders-item");
-      dersler.forEach((ders) => {
-        const bolum = ders.querySelector("select[name='dersBolumu']").value;
-        let yeniDers = ders.querySelector("input[name='yeniDers']").value;
+      document.querySelectorAll(".ders-item").forEach(ders => {
+        const bolumSelect = ders.querySelector("select[name='dersBolumuSelect']");
+        const bolum = bolumSelect.value === "diger"
+          ? ders.querySelector("input[name='digerDersBolumu']").value.trim()
+          : bolumSelect.value;
+
+        const yeniDers = formatDersAdi(ders.querySelector("input[name='yeniDers']").value);
         const grup = ders.querySelector("input[name='grup']").value;
         const dili = ders.querySelector("select[name='dili']").value;
         const krediTu = ders.querySelector("input[name='krediTu']").value;
-        const esKodAd = ders.querySelector("input[name='esKodAd']").value;
+        const esKodAd = formatDersAdi(ders.querySelector("input[name='esKodAd']").value);
         const esDili = ders.querySelector("input[name='esDili']").value;
         const esKredi = ders.querySelector("input[name='esKredi']").value;
-
-        yeniDers = formatDersAdi(yeniDers);
-        const esKodAdFormatted = formatDersAdi(esKodAd);
 
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -322,7 +333,7 @@
           <td>${grup}</td>
           <td>${dili}</td>
           <td>${krediTu}</td>
-          <td>${esKodAdFormatted}</td>
+          <td>${esKodAd}</td>
           <td>${esDili}</td>
           <td>${esKredi}</td>
         `;
