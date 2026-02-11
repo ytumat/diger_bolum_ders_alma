@@ -105,6 +105,17 @@
         display: none !important;
       }
     }
+
+#dersTablosu {
+    border-collapse: collapse; /* Çift çizgi oluşmasını engeller, inceltir */
+    width: 100%;
+}
+
+#dersTablosu th, #dersTablosu td {
+    border: 0.5pt solid #000; /* 'px' yerine 'pt' kullanmak PDF'te daha tutarlı sonuç verir */
+    padding: 6px;
+    font-size: 10pt;
+}
   </style>
 </head>
 <body>
@@ -130,7 +141,7 @@
 
       <label>Bölümünüzü Seçiniz:</label>
       <select id="bolumSelect" required>
-        <option value="MATEMATİK BÖLÜM BAŞKANLIĞI'NA">MATEMATİK</option>
+        <option value="MATEMATİK BÖLÜM BAŞKANLIĞINA">MATEMATİK</option>
         <option value="FİZİK BÖLÜM BAŞKANLIĞINA">FİZİK</option>
         <option value="KİMYA BÖLÜM BAŞKANLIĞINA">KİMYA</option>
         <option value="İSTATİSTİK BÖLÜM BAŞKANLIĞINA">İSTATİSTİK</option>
@@ -155,11 +166,11 @@
       <p id="bolumYazisi" class="center-text" style="font-weight: bold; margin-bottom: 1cm;"></p>
       <div class="left-text" id="ogrenciBilgileri"></div>
 
-      <p style="margin-top: 30px;">
-        2025-2026 Eğitim-Öğretim yılı BAHAR Yarıyılında aşağıda belirtmiş olduğum mazeretten dolayı üniversitemiz diğer bölümlerinden almak istediğim aşağıdaki ders(ler)in öğrenci otomasyon sistemine işlenmesi için gereğini arz ederim.
+      <p style="margin-top: 10px; text-align: justify;">
+        2025-2026 Eğitim-Öğretim yılı <strong>BAHAR</strong> Yarıyılında aşağıda belirtmiş olduğum mazeretten dolayı üniversitemiz diğer bölümlerinden almak istediğim aşağıdaki ders(ler)in öğrenci otomasyon sistemine işlenmesi için gereğini arz ederim.
       </p>
 
-      <p style="margin-top: 10px;"><strong>Mazeret:</strong> <span id="mazeretMetni"></span></p>
+      <p style="margin-top: 10px; text-align: justify;"><strong>Mazeret:</strong> <span id="mazeretMetni"></span></p>
 
       <table id="dersTablosu">
         <thead>
@@ -184,13 +195,21 @@
       <p style="margin-top: 20px;"><strong>Eklenecek Ders(ler) Dahil GÜZ Yarıyılında Alınan Toplam Kredi:</strong> <span id="krediBilgisi"></span></p>
       <br><br>
       <p style="text-align: right;" id="tarihYeri"></p>
-      <p style="text-align: right;" id="imzaAlani">İmza: _________</p>
+      <div id="epostaAltMetin" style="color: red; font-weight: bold; margin-top: 50px; text-align: center;">
+  </div>
     </div>
 
     <div class="download-button" id="downloadBtnDiv">
       <button id="downloadBtn">📥 PDF Olarak İndir</button>
     </div>
   </div>
+
+
+
+
+
+
+
 
   <script>
     document.getElementById("bolumSelect").addEventListener("change", function () {
@@ -309,6 +328,8 @@
       document.getElementById("tarihYeri").innerText = `Tarih: ${formattedDate}`;
       document.getElementById("mazeretMetni").innerText = mazeret;
 
+document.getElementById("epostaAltMetin").innerText = `Bu belge ${email} adresinden bölüme iletilmiştir.`;
+
       const tbody = document.querySelector("#dersTablosu tbody");
       tbody.innerHTML = "";
 
@@ -344,7 +365,7 @@
       document.getElementById("downloadBtnDiv").style.display = "block";
     });
 
-    document.getElementById("downloadBtn").addEventListener("click", function () {
+     document.getElementById("downloadBtn").addEventListener("click", function () {
       const element = document.getElementById("dilekceOutput");
       const opt = {
         margin: 0.5,
@@ -355,8 +376,7 @@
       };
       html2pdf().set(opt).from(element).save();
     });
+
   </script>
 </body>
 </html>
-
-
