@@ -58,6 +58,48 @@
         input, select, textarea { font-size: 14px; padding: 10px; }
         h2 { font-size: 1.1rem; }
     }
+
+.email-suffix {
+    color: #0056b3; /* YTÜ Kurumsal Mavisine yakın bir ton */
+    font-weight: bold;
+    background-color: #e7f1ff; /* Hafif bir arka plan vurgusu (opsiyonel) */
+    padding: 10px 8px;
+    border-radius: 4px;
+    border: 1px solid #cce5ff;
+    font-size: 14px;
+}
+
+/* E-posta kapsayıcısı */
+.email-wrapper { 
+    display: flex; 
+    align-items: stretch; /* Yükseklikleri eşitler */
+    margin-top: 6px; 
+}
+
+/* Giriş kutusu (Sol taraf) */
+.email-wrapper input { 
+    flex: 0 1 200px; /* Genişliği 200px civarında tutar */
+    min-width: 120px; 
+    margin-top: 0; 
+    border-top-right-radius: 0; 
+    border-bottom-right-radius: 0; 
+    //border-right: none; 
+}
+
+/* Mavi Uzantı Kutusu (Sağ taraf) */
+.email-suffix { 
+    display: flex;
+    align-items: center;
+    background-color: #e7f1ff; /* Hafif mavi arka plan */
+    color: #0056b3; /* YTÜ Mavisi tonu */
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    font-weight: bold;
+    font-size: 13px;
+    white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -74,10 +116,16 @@
       <input type="text" id="numara" inputmode="numeric" required />
 
       <label>YTÜ E-posta Kullanıcı Adı:</label>
-      <div class="email-wrapper">
-        <input type="text" id="emailUser" placeholder="kullanıcı adınız" required autocomplete="off" oninput="emailKontrol(this)" />
-        <span class="email-suffix">@std.yildiz.edu.tr</span>
-      </div>
+<div class="email-wrapper">
+  <input type="text" id="emailUser" 
+         placeholder="kullanıcı adınız" 
+         required 
+         autocomplete="off" 
+         oninput="emailKontrol(this)"
+         onpaste="return false;" 
+         ondrop="return false;" />
+  <span class="email-suffix">@std.yildiz.edu.tr</span>
+</div>
       
       <label>Cep Telefonu:</label>
       <input type="text" id="telefon" inputmode="tel" placeholder="5XX XXX XXXX" required />
@@ -138,6 +186,20 @@
   </div>
 
  <script>
+
+// E-posta alanına yapıştırmayı ve sürüklemeyi engelle
+const emailInput = document.getElementById('emailUser');
+
+emailInput.addEventListener('paste', function(e) {
+    e.preventDefault();
+    alert("Lütfen sadece YTÜ e-posta kullanıcı adınızı yazınız.");
+});
+
+emailInput.addEventListener('drop', function(e) {
+    e.preventDefault();
+});
+
+
     const { jsPDF } = window.jspdf;
 
     function trUpper(text) {
