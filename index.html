@@ -59,46 +59,37 @@
         h2 { font-size: 1.1rem; }
     }
 
-.email-suffix {
-    color: #0056b3; /* YTÜ Kurumsal Mavisine yakın bir ton */
-    font-weight: bold;
-    background-color: #e7f1ff; /* Hafif bir arka plan vurgusu (opsiyonel) */
-    padding: 10px 8px;
-    border-radius: 4px;
-    border: 1px solid #cce5ff;
-    font-size: 14px;
-}
 
-/* E-posta kapsayıcısı */
+
 .email-wrapper { 
     display: flex; 
-    align-items: stretch; /* Yükseklikleri eşitler */
+    align-items: stretch; 
     margin-top: 6px; 
+    flex-wrap: nowrap; /* Kesinlikle yan yana tutar */
 }
 
-/* Giriş kutusu (Sol taraf) */
 .email-wrapper input { 
-    flex: 0 1 200px; /* Genişliği 200px civarında tutar */
-    min-width: 120px; 
+    flex: 0 1 200px; 
+    min-width: 80px; /* Çok dar ekranlarda bile kaybolmasın */
     margin-top: 0; 
     border-top-right-radius: 0; 
     border-bottom-right-radius: 0; 
-    //border-right: none; 
+    border-right: none; 
+    -webkit-user-select: text; 
 }
 
-/* Mavi Uzantı Kutusu (Sağ taraf) */
 .email-suffix { 
     display: flex;
     align-items: center;
-    background-color: #e7f1ff; /* Hafif mavi arka plan */
-    color: #0056b3; /* YTÜ Mavisi tonu */
+    background-color: #e7f1ff; 
+    color: #0056b3; 
     padding: 0 10px;
     border: 1px solid #ccc;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
     font-weight: bold;
     font-size: 13px;
-    white-space: nowrap;
+    white-space: nowrap; /* Yazıyı tek satırda tutar */
 }
 </style>
 </head>
@@ -121,6 +112,8 @@
          placeholder="kullanıcı adınız" 
          required 
          autocomplete="off" 
+         readonly 
+         onfocus="this.removeAttribute('readonly');"
          oninput="emailKontrol(this)"
          onpaste="return false;" 
          ondrop="return false;" />
