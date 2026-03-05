@@ -65,22 +65,28 @@
     display: flex; 
     align-items: stretch; 
     margin-top: 6px; 
+    height: 45px; /* Sabit yükseklik milimetrik hizalar */
     flex-wrap: nowrap; /* Kesinlikle yan yana tutar */
 }
 
 .email-wrapper input { 
-    flex: 0 1 200px; 
-    min-width: 80px; /* Çok dar ekranlarda bile kaybolmasın */
-    margin-top: 0; 
+    flex: 1; /* Esnek genişlik */
+    min-width: 80px; 
+    margin: 0 !important; 
     border-top-right-radius: 0; 
     border-bottom-right-radius: 0; 
     border-right: none; 
-    -webkit-user-select: text; 
+    height: 100% !important;
+    font-size: 16px;
+    box-sizing: border-box;
+    display: block;
+    line-height: normal;
 }
 
 .email-suffix { 
     display: flex;
     align-items: center;
+    justify-content: center;
     background-color: #e7f1ff; 
     color: #0056b3; 
     padding: 0 10px;
@@ -89,8 +95,11 @@
     border-bottom-right-radius: 4px;
     font-weight: bold;
     font-size: 13px;
-    white-space: nowrap; /* Yazıyı tek satırda tutar */
+    white-space: nowrap;
+    height: 100%;
+    box-sizing: border-box;
 }
+
 </style>
 </head>
 <body>
@@ -108,7 +117,7 @@
 
       <label>YTÜ E-posta Kullanıcı Adı:</label>
 <div class="email-wrapper">
-  <input type="text" id="emailUser" 
+  <input type="text" id="adana" 
          placeholder="kullanıcı adınız" 
          required 
          autocomplete="off" 
@@ -181,7 +190,7 @@
  <script>
 
 // E-posta alanına yapıştırmayı ve sürüklemeyi engelle
-const emailInput = document.getElementById('emailUser');
+const emailInput = document.getElementById('adana');
 
 emailInput.addEventListener('paste', function(e) {
     e.preventDefault();
@@ -269,7 +278,7 @@ emailInput.addEventListener('drop', function(e) {
       e.preventDefault();
       const ad = trUpper(document.getElementById("ad").value);
       const soyad = trUpper(document.getElementById("soyad").value);
-      const mail = document.getElementById("emailUser").value + "@std.yildiz.edu.tr";
+      const mail = document.getElementById("adana").value + "@std.yildiz.edu.tr";
       
       document.getElementById("outAdSoyad").innerText = ad + " " + soyad;
       document.getElementById("outNo").innerText = document.getElementById("numara").value;
